@@ -1,0 +1,11 @@
+langchain
+langchain-ollama
+psycopg2
+pgvector
+fastapi
+pydantic
+python-dotenv
+numpy
+streamlit
+requests
+pathlib
