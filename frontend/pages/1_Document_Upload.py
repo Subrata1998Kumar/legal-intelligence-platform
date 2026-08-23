@@ -14,7 +14,7 @@ if not auth:
 st.title("📥 Secure Document Ingestion")
 st.markdown("Upload Government Orders, notifications, judgments, or bills to the local database.")
 
-uploaded_file = st.file_uploader("Select a file (.pdf, .docx, .doc, .txt, .md, .sql)", type=["pdf", "docx", "doc", "txt", "md", "sql"])
+uploaded_file = st.file_uploader("Select a file (.pdf, .docx, .doc, .txt)", type=["pdf", "docx", "doc", "txt"])
 
 # Define role-based dropdown selection
 clearance_options = ["Legal_Officer", "Senior_Advisor", "Admin"]

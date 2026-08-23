@@ -75,7 +75,12 @@ async def ask_assistant(session_id: str, query: ChatQuery, db: Session = Depends
     response_text = await ChatService.generate_response(prompt)
     
     user_msg = ChatMessage(session_id=session_id, role="user", content=query.message)
-    assistant_msg = ChatMessage(session_id=session_id, role="assistant", content=response_text)
+    assistant_msg = ChatMessage(
+        session_id=session_id,
+        role="assistant",
+        content=response_text,
+        citations=sources_meta,
+    )
     db.add(user_msg)
     db.add(assistant_msg)
     

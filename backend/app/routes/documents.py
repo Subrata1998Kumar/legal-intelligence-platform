@@ -15,6 +15,7 @@ from ..auth import get_current_user
 from ..services.embedding_service import EmbeddingService
 
 router = APIRouter(prefix="/documents", tags=["Documents Ingestion"])
+SUPPORTED_EXTENSIONS = (".pdf", ".docx", ".doc", ".txt")
 
 def format_table_as_markdown(table: list[list[str]]) -> str:
     if not table or not any(table):
@@ -47,6 +48,15 @@ async def upload_document(
         
     if security_clearance not in ["Legal_Officer", "Senior_Advisor", "Admin"]:
         raise HTTPException(status_code=400, detail="Invalid clearance level.")
+
+    filename = file.filename or ""
+    filename_lower = filename.lower()
+    if not filename_lower.endswith(SUPPORTED_EXTENSIONS):
+        supported = ", ".join(extension.lstrip(".") for extension in SUPPORTED_EXTENSIONS)
+        raise HTTPException(
+            status_code=400,
+            detail=f"Unsupported file type. Supported formats: {supported}.",
+        )
     
     content_bytes = await file.read()
     file_hash = hashlib.sha256(content_bytes).hexdigest()
@@ -56,7 +66,7 @@ async def upload_document(
         raise HTTPException(status_code=400, detail=f"File already uploaded (SHA-256: {file_hash[:10]}).")
     
     doc = Document(
-        filename=file.filename,
+        filename=filename,
         file_hash=file_hash,
         security_clearance=security_clearance,
         uploaded_by=current_user.id
@@ -66,7 +76,6 @@ async def upload_document(
     db.refresh(doc)
     
     chunks_to_add = []  # List of tuples: (content, is_table, table_json)
-    filename_lower = file.filename.lower()
     
     try:
         if filename_lower.endswith(".pdf"):
@@ -130,7 +139,7 @@ async def upload_document(
                         ))
                         
         else:
-            # Fallback to plain text decoding (txt, md, sql)
+            # Plain text decoding for .txt uploads.
             text_content = content_bytes.decode("utf-8", errors="ignore")
             chunks_to_add.append((text_content, False, None))
             

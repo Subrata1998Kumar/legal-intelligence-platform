@@ -48,6 +48,7 @@ class ChatMessage(Base):
     session_id = Column(String(100), ForeignKey("chat_sessions.id", ondelete="CASCADE"), nullable=False)
     role = Column(String(50), nullable=False) # 'user', 'assistant'
     content = Column(Text, nullable=False)
+    citations = Column(JSON, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 class Opinion(Base):

@@ -37,6 +37,7 @@ class DocumentResponse(BaseModel):
 class ChatMessageResponse(BaseModel):
     role: str
     content: str
+    citations: Optional[List[Dict[str, Any]]] = None
     created_at: datetime
     class Config:
         from_attributes = True

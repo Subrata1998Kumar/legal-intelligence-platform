@@ -45,6 +45,7 @@ CREATE TABLE IF NOT EXISTS chat_messages (
     session_id VARCHAR(100) REFERENCES chat_sessions(id) ON DELETE CASCADE,
     role VARCHAR(50) NOT NULL CHECK (role IN ('user', 'assistant')),
     content TEXT NOT NULL,
+    citations JSONB,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 

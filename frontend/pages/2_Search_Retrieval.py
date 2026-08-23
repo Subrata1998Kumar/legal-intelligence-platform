@@ -13,6 +13,21 @@ if not auth:
 
 st.title("🔍 Semantic Precedent Search & Retrieval")
 
+
+def render_citations(sources):
+    if not sources:
+        return
+
+    st.markdown("#### Grounded Reference Citations:")
+    for source in sources:
+        similarity = source.get("similarity")
+        similarity_text = f"{similarity:.2f}" if isinstance(similarity, (int, float)) else "N/A"
+        with st.expander(f"📖 {source.get('filename', 'Unknown document')} (Similarity: {similarity_text})"):
+            st.markdown(
+                f"*   **Chunk Index**: {source.get('chunk_index', 'N/A')}\n"
+                f"*   **Clearance Tag**: `{source.get('clearance', 'N/A')}`"
+            )
+
 # Sidebar for managing chat sessions dynamically from the backend
 with st.sidebar:
     st.subheader("Conversation History")
@@ -61,7 +76,14 @@ else:
         try:
             r = httpx.get(f"{BACKEND_URL}/chat/sessions/{active_session_id}/messages", auth=auth)
             if r.status_code == 200:
-                st.session_state.messages = [{"role": m["role"], "content": m["content"]} for m in r.json()]
+                st.session_state.messages = [
+                    {
+                        "role": message["role"],
+                        "content": message["content"],
+                        "sources": message.get("citations") or [],
+                    }
+                    for message in r.json()
+                ]
                 st.session_state.current_loaded_session_id = active_session_id
             else:
                 st.session_state.messages = []
@@ -74,6 +96,8 @@ st.subheader("Chat Workspace")
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
         st.write(msg["content"])
+        if msg["role"] == "assistant":
+            render_citations(msg.get("sources", []))
 
 user_query = st.chat_input("Ask a legal question (e.g., 'What is the penalty for contract non-compliance?')")
 
@@ -110,18 +134,10 @@ if user_query:
                 response_text = res["response"]
                 sources = res["sources"]
                 
-                st.session_state.messages.append({"role": "assistant", "content": response_text})
+                st.session_state.messages.append({"role": "assistant", "content": response_text, "sources": sources})
                 with st.chat_message("assistant"):
                     st.write(response_text)
-                    
-                    if sources:
-                        st.markdown("#### Grounded Reference Citations:")
-                        for s in sources:
-                            with st.expander(f"📖 {s['filename']} (Similarity: {s['similarity']:.2f})"):
-                                st.markdown(
-                                    f"*   **Chunk Index**: {s['chunk_index']}\n"
-                                    f"*   **Clearance Tag**: `{s['clearance']}`"
-                                )
+                    render_citations(sources)
                 
                 # Rerun to update sidebar conversation listing titles dynamically
                 st.rerun()
