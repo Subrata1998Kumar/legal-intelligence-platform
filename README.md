@@ -1,4 +1,4 @@
-# Enterprise Legal Intelligence Platform (v2)
+# Enterprise Legal Intelligence Platform
 
 An isolated, enterprise-grade, on-premises-ready legal intelligence platform and opinion assistant built specifically for the **Law Department of the Government Secretariat**. The platform provides secure data ingestion, semantic search, local LLM-powered auditing, and collaborative workflow management for highly sensitive legal documents.
 
