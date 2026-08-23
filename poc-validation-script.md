@@ -4,18 +4,68 @@ This document provides a step-by-step testing scenario to validate the complete 
 
 ---
 
-## **Pre-requisites for Validation**
-Before starting, ensure your local Docker containers are running and the local models have been pulled:
+## **Start Here: Clone and Start the Project**
+
+### **Step 1: Install the Required Tools**
+Before beginning the validation, install and verify:
+* **Git**: Required to clone the project repository.
+* **Docker Desktop**: Start Docker Desktop and confirm that the Docker engine is running.
+
 ```bash
-docker-compose up -d
+git --version
+docker --version
+```
+
+### **Step 2: Clone the Repository from GitHub**
+Clone the project and change into its root directory:
+
+```bash
+git clone https://github.com/Subrata1998Kumar/legal-intelligence-platform.git
+cd legal-intelligence-platform
+```
+
+### **Step 3: Start the Docker Services**
+The Docker Compose file is stored in the `deployments` directory. Start the database, Ollama, backend, and frontend services:
+
+```bash
+cd deployments
+docker compose up -d --build
+```
+
+Return to the project root when you need to run commands against files in the repository:
+
+```bash
+cd ..
+```
+
+### **Step 4: Pull the Required Local AI Models**
+Download the local model weights into the Ollama container:
+
+```bash
 docker exec -it lip-ollama ollama pull granite4.1:3b
 docker exec -it lip-ollama ollama pull paraphrase-multilingual:278m
 ```
-### This confirms Ollama is running correctly
+
+### **Step 5: Verify the Services and Models**
+Confirm that Ollama is running and both models are available:
+
 ```bash
 docker exec -it lip-ollama ollama list 
 curl http://localhost:11434/api/tags
 ```
+
+The validation environment is ready when the containers are running and both `granite4.1:3b` and `paraphrase-multilingual:278m` appear in the model list.
+
+### **Step 6: Check Database Readiness and Initialization**
+Confirm that PostgreSQL is accepting connections and that the schema and pre-seeded user accounts were initialized successfully:
+
+```bash
+docker exec -it lip-db pg_isready -U postgres -d postgres
+docker exec -it lip-db psql -U postgres -d postgres -c "SELECT id, username, role FROM users;"
+```
+
+**Expected Result:** The readiness check reports that PostgreSQL is accepting connections, and the SQL query returns the configured user accounts, including `admin`, `officer_1`, and `advisor_1`.
+
 ---
 
 ## **Validation Phase 1: Authentication & Account Directory**
