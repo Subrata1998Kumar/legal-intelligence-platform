@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  lip-db:
+    image: ankane/pgvector:latest
+    container_name: lip-db
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - lip_db_data:/var/lib/postgresql/data
+      - ../db/schema.sql:/docker-entrypoint-initdb.d/1-schema.sql
+      - ../db/init.sql:/docker-entrypoint-initdb.d/2-init.sql
+    restart: always
+
+  lip-ollama:
+    image: ollama/ollama:latest
+    container_name: lip-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - lip_ollama_data:/root/.ollama
+    restart: always
+
+  lip-backend:
+    image: subrata1998kumar/lip-backend:latest
+    container_name: lip-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DB_HOST=lip-db
+      - DB_PORT=5432
+      - DB_NAME=postgres
+      - DB_USER=postgres
+      - DB_PASS=password
+      - CHAT_MODEL=granite4.1:3b
+      - EMBEDDING_MODEL=paraphrase-multilingual:278m
+      - OLLAMA_URL=http://lip-ollama:11434
+    depends_on:
+      - lip-db
+      - lip-ollama
+    restart: always
+
+  lip-frontend:
+    image: subrata1998kumar/lip-frontend:latest
+    container_name: lip-frontend
+    ports:
+      - "8501:8501"
+    environment:
+      - BACKEND_URL=http://lip-backend:8000/api
+    depends_on:
+      - lip-backend
+    restart: always
+
+volumes:
+  lip_db_data:
+  lip_ollama_data:

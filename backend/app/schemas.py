@@ -1,39 +1,76 @@
-""" Pydantic schemas for API validation """
-from pydantic import BaseModel, Field
-from typing import List
+from pydantic import BaseModel
+from typing import Optional, List, Dict, Any
+from datetime import datetime
 
-class UserRegister(BaseModel):
-    username: str = Field(..., example="justice_officer_a")
-    password: str = Field(..., example="SecureSecretPass123!")
-    role: str = Field(..., example="Legal_Officer", description="Roles: Legal_Officer, Senior_Advisor, Admin")
+class UserCreate(BaseModel):
+    username: str
+    password: str
+    role: str
 
 class UserLogin(BaseModel):
-    username: str = Field(..., example="justice_officer_a")
-    password: str = Field(..., example="SecureSecretPass123!")
+    username: str
+    password: str
 
-class TokenResponse(BaseModel):
+class UserResponse(BaseModel):
+    id: int
+    username: str
+    role: str
+    created_at: datetime
+    class Config:
+        from_attributes = True
+
+class Token(BaseModel):
     access_token: str
     token_type: str
     username: str
     role: str
 
-class Citation(BaseModel):
-    source_document: str = Field(description="The file name of the authoritative legal document.")
-    chunk_id: int = Field(description="The specific chunk/paragraph index.")
-    exact_quote: str = Field(description="The exact text snippet retrieved and used for grounding.")
+class DocumentResponse(BaseModel):
+    id: int
+    filename: str
+    file_hash: str
+    security_clearance: str
+    uploaded_at: datetime
+    class Config:
+        from_attributes = True
 
-class ComplianceRisk(BaseModel):
-    risk_level: str = Field(description="Severity of conflict or compliance risk (e.g., High, Medium, Low).")
-    description: str = Field(description="Detailed explanation of the conflict or risk identified.")
-    conflicting_source: str = Field(description="The statute or circular being violated or contradicted.")
+class ChatMessageResponse(BaseModel):
+    role: str
+    content: str
+    created_at: datetime
+    class Config:
+        from_attributes = True
 
-class StructuredLegalOpinion(BaseModel):
-    executive_summary: str = Field(description="A high-level overview of the legal guidance.")
-    detailed_analysis: str = Field(description="The formal, defensible legal opinion.")
-    citations: List[Citation] = Field(description="Authoritative sources proving the claims.")
-    risks_detected: List[ComplianceRisk] = Field(description="Conflicts, compliance gaps, or regulatory risks.")
-    confidence_score: float = Field(description="Factual consistency/faithfulness rating (e.g., using HHEM) from 0 to 1.")
+class ChatSessionResponse(BaseModel):
+    id: str
+    title: str
+    created_at: datetime
+    class Config:
+        from_attributes = True
 
-class QueryRequest(BaseModel):
-    session_id: str = Field(..., example="session_12345")
-    query: str = Field(..., example="What is the mandatory final approval step for a project launch and its deadline?")
+class ChatQuery(BaseModel):
+    message: str
+
+class ChatResponse(BaseModel):
+    response: str
+    sources: List[Dict[str, Any]]
+
+class OpinionCreate(BaseModel):
+    title: str
+    draft_content: str
+
+class OpinionResponse(BaseModel):
+    id: int
+    title: str
+    draft_content: str
+    compliance_report: Dict[str, Any]
+    status: str
+    created_by: Optional[int]
+    reviewed_by: Optional[int]
+    created_at: datetime
+    updated_at: datetime
+    class Config:
+        from_attributes = True
+
+class StatusUpdate(BaseModel):
+    status: str

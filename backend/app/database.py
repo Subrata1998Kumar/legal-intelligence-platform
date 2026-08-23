@@ -1,32 +1,16 @@
-""" Postgress DB connection """
-from config import config_data
-import psycopg2
-from psycopg2 import DatabaseError
-from psycopg2.extras import RealDictCursor
+from sqlalchemy import create_engine
+from sqlalchemy.orm import declarative_base, sessionmaker
+from .config import settings
 
-class PostgressDBConnect:
-    @classmethod
-    def get_db_connection(cls):
-        cnf = config_data()
+DATABASE_URL = f"postgresql://{settings.DB_USER}:{settings.DB_PASS}@{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}"
 
-        try:
-            conn = psycopg2.connect(
-                host=cnf.DATABASE_URL,
-                port=cnf.DB_PORT,
-                database=cnf.DB_NAME,
-                user=cnf.DB_USER,
-                password=cnf.DB_PASS,
-                cursor_factory=RealDictCursor
-            )
-            return conn
-        except DatabaseError as error:
-           raise RuntimeError(
-                f"Database connection failure: {error}"
-            ) from error
-            
+engine = create_engine(DATABASE_URL, pool_pre_ping=True)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Base = declarative_base()
 
-if __name__=='__main__':
-    db_conn = PostgressDBConnect.get_db_connection()
-    print(db_conn)
-    if db_conn:
-        db_conn.close()
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()

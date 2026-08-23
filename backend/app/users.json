@@ -1,0 +1,52 @@
+[
+  {
+    "username": "admin",
+    "password": "admin",
+    "role": "Admin"
+  },
+  {
+    "username": "officer_1",
+    "password": "officer_1",
+    "role": "Legal_Officer"
+  },
+  {
+    "username": "officer_2",
+    "password": "officer_2",
+    "role": "Legal_Officer"
+  },
+  {
+    "username": "officer_3",
+    "password": "officer_3",
+    "role": "Legal_Officer"
+  },
+  {
+    "username": "advisor_1",
+    "password": "advisor_1",
+    "role": "Senior_Advisor"
+  },
+  {
+    "username": "advisor_2",
+    "password": "advisor_2",
+    "role": "Senior_Advisor"
+  },
+  {
+    "username": "advisor_3",
+    "password": "advisor_3",
+    "role": "Senior_Advisor"
+  },
+  {
+    "username": "clerk_1",
+    "password": "clerk_1",
+    "role": "Legal_Officer"
+  },
+  {
+    "username": "clerk_2",
+    "password": "clerk_2",
+    "role": "Legal_Officer"
+  },
+  {
+    "username": "review_1",
+    "password": "review_1",
+    "role": "Senior_Advisor"
+  }
+]

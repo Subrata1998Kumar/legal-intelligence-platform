@@ -1,22 +1,19 @@
 import os
-from pathlib import Path
-from dotenv import load_dotenv
 
-class config_data:
-    def __init__(self):
-        PROJECT_ROOT = Path(__file__).resolve().parent
-        ENV_FILE = PROJECT_ROOT / "env_files" / "dev.env"
-        load_dotenv(ENV_FILE)
-        self.DATABASE_URL = os.getenv("DB_HOST")
-        self.DB_PORT = os.getenv("DB_PORT")
-        self.DB_NAME = os.getenv("DB_NAME")
-        self.DB_USER = os.getenv("DB_USER")
-        self.DB_PASS = os.getenv("DB_PASS")
-        self.CHAT_MODEL = os.getenv("CHAT_MODEL")
-        self.EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL")
-        self.OLLAMA_URL = os.getenv("OLLAMA_URL")
+class Settings:
+    DB_HOST: str = os.getenv("DB_HOST", "localhost")
+    DB_PORT: str = os.getenv("DB_PORT", "5432")
+    DB_NAME: str = os.getenv("DB_NAME", "postgres")
+    DB_USER: str = os.getenv("DB_USER", "postgres")
+    DB_PASS: str = os.getenv("DB_PASS", "password")
 
-if __name__=='__main__':
-    conf_data = config_data()
-    print(conf_data.DATABASE_URL)
-    print(conf_data.EMBEDDING_MODEL)
+    CHAT_MODEL: str = os.getenv("CHAT_MODEL", "granite4.1:3b")
+    EMBEDDING_MODEL: str = os.getenv("EMBEDDING_MODEL", "paraphrase-multilingual:278m")
+    OLLAMA_URL: str = os.getenv("OLLAMA_URL", "http://localhost:11434")
+
+    # Note: JWT Secret configuration is kept for backwards compatibility but is bypassed for Basic Auth.
+    JWT_SECRET: str = os.getenv("JWT_SECRET", "super-secret-government-clearance-key")
+    JWT_ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 120
+
+settings = Settings()

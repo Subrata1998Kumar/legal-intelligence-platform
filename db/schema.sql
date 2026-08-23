@@ -1,40 +1,39 @@
--- Enable the pgvector extension for high-dimensional vector search
 CREATE EXTENSION IF NOT EXISTS vector;
 
--- 1. Users table for Authentication and Role-Based Access Control (RBAC)
+-- 1. Users table for RBAC basic auth checking
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     username VARCHAR(150) UNIQUE NOT NULL,
-    password_hash VARCHAR(255) NOT NULL, -- Bcrypt hash of password
+    password VARCHAR(255) NOT NULL,
     role VARCHAR(50) NOT NULL CHECK (role IN ('Legal_Officer', 'Senior_Advisor', 'Admin')),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- 2. Documents Metadata Table for Access Authorization and Provenance
+-- 2. Documents table for provenance
 CREATE TABLE IF NOT EXISTS documents (
     id SERIAL PRIMARY KEY,
     filename VARCHAR(255) NOT NULL,
-    file_hash VARCHAR(64) UNIQUE NOT NULL, -- SHA-256 for deduplication and integrity auditing
+    file_hash VARCHAR(64) UNIQUE NOT NULL,
     security_clearance VARCHAR(50) NOT NULL DEFAULT 'Legal_Officer' CHECK (security_clearance IN ('Legal_Officer', 'Senior_Advisor', 'Admin')),
     uploaded_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
     uploaded_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- 3. Document Chunks Table with vector embeddings (paraphrase-multilingual:278m - 768 dimensional dense vector)
+-- 3. Document chunks table (supporting multimodal / tables)
 CREATE TABLE IF NOT EXISTS document_chunks (
     id SERIAL PRIMARY KEY,
     document_id INTEGER REFERENCES documents(id) ON DELETE CASCADE,
     chunk_index INTEGER NOT NULL,
-    content TEXT NOT NULL, -- Raw text content of the chunk
-    embedding VECTOR(768), -- Vector representation of semantic content
+    content TEXT NOT NULL,
+    embedding VECTOR(768),
     is_table BOOLEAN DEFAULT FALSE,
-    table_json JSONB, -- Stores structured tables as JSON if parsed
+    table_json JSONB,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- 4. Session History and Chat Memory tables for PostgreSQL-based persistence
+-- 4. Persistent Chat History tables
 CREATE TABLE IF NOT EXISTS chat_sessions (
-    id VARCHAR(100) PRIMARY KEY, -- Session ID UUID or unique hash
+    id VARCHAR(100) PRIMARY KEY,
     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
     title VARCHAR(255) NOT NULL DEFAULT 'New Conversation',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
@@ -49,10 +48,21 @@ CREATE TABLE IF NOT EXISTS chat_messages (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- 5. Creating high-performance HNSW index on the vector embeddings
--- HNSW builds a multi-layer proximity graph to perform fast Approximate Nearest Neighbor (ANN) search.
--- We use L2 distance (vector_l2_ops) or cosine distance (vector_cosine_ops) based on our retriever needs.
-CREATE INDEX IF NOT EXISTS document_chunks_hnsw_idx 
-ON document_chunks 
+-- 5. Opinions and auditing table
+CREATE TABLE IF NOT EXISTS opinions (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    draft_content TEXT NOT NULL,
+    compliance_report JSONB NOT NULL,
+    status VARCHAR(50) NOT NULL DEFAULT 'Draft' CHECK (status IN ('Draft', 'Under_Review', 'Approved', 'Rejected')),
+    created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    reviewed_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 6. Creating high-performance HNSW index
+CREATE INDEX IF NOT EXISTS document_chunks_hnsw_idx
+ON document_chunks
 USING hnsw (embedding vector_cosine_ops)
 WITH (m = 16, ef_construction = 64);
