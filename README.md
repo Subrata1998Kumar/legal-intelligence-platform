@@ -9,7 +9,7 @@ An isolated, enterprise-grade, on-premises-ready legal intelligence platform and
 The platform handles highly sensitive legal materials, such as Government Orders, draft bills, policy notes, and court judgments, without transmitting data outside the host machine.
 
 ### Core Functional Workflow
-1. **Secure Document Ingestion**: Users ingest files (.pdf, .docx, .doc, .txt, .md, .sql) into the system. Native, layout-aware parsing extracts paragraphs and formatted tables, converting tabular data into high-fidelity Markdown representations. Scanned pages automatically trigger local Tesseract OCR.
+1. **Secure Document Ingestion**: Users ingest files (.pdf, .docx, .doc, .txt) into the system. Native, layout-aware parsing extracts paragraphs and formatted tables, converting tabular data into high-fidelity Markdown representations. Scanned pages automatically trigger local Tesseract OCR.
 2. **Dynamic Role-Based Access Control (RBAC)**: Documents are assigned a security clearance. Users can query or retrieve document chunks *only if* their active role clearance is equal to or greater than the document's clearance.
 3. **Semantic RAG QA Workspace**: Users engage in context-grounded conversations with a local LLM that retrieves source-cited text passages directly from an on-premises PostgreSQL vector database.
 4. **Interactive Opinion Workspace**:
@@ -33,7 +33,7 @@ The platform handles highly sensitive legal materials, such as Government Orders
 To satisfy the Secretariat's enterprise data-protection requirements, all generative reasoning and embedding calculations run locally. No outbound internet telemetry is generated.
 
 1. **Local LLM (`granite4.1:3b`)**:
-   * **Purpose**: Generates context-grounded chat responses and evaluates compliance audits in the risk-scoring pipeline.
+   * **Purpose**: Generates context-grounded chat responses, supports multilingual legal research, and evaluates compliance audits in the risk-scoring pipeline.
    * **Hardware Optimization**: Built by IBM with 3 billion parameters, it is optimized for legal-compliance reasoning with a low memory footprint and a low temperature setting (`0.1`) to produce stable output.
 2. **Local Embedding Model (`paraphrase-multilingual:278m`)**:
    * **Purpose**: Converts document chunks into dense, 768-dimensional vector embeddings.
