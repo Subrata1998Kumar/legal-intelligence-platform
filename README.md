@@ -30,7 +30,7 @@ The platform handles highly sensitive legal materials, such as Government Orders
 
 ## 🧠 Local AI Model Stack (Zero-Leakage Compliance)
 
-To satisfy the Secretariat's enterprise data-protection requirements, all generative reasoning and embedding calculations run locally. No outbound internet telemetry is generated.
+To satisfy the Secretariat's enterprise data-protection requirements, all generative reasoning and embedding calculations run locally using ollama. No outbound internet telemetry is generated.
 
 1. **Local LLM (`granite4.1:3b`)**:
    * **Purpose**: Generates context-grounded chat responses, supports multilingual legal research, and evaluates compliance audits in the risk-scoring pipeline.
