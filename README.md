@@ -43,7 +43,7 @@ To satisfy the Secretariat's enterprise data-protection requirements, all genera
 
 ---
 
-## 🛠️ Local Setup & Docker Deployment (Method 1)
+## 🛠️ Local Setup & Docker Deployment
 
 This method deploys the entire decoupled platform locally inside a Docker Compose network.
 
