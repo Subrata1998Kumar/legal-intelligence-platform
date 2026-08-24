@@ -156,3 +156,7 @@ To systematically test the role restrictions, multi-format parsing, semantic fil
 >
 > * **Latency Expectation**: Depending on your system hardware, especially when running on a CPU without dedicated GPU acceleration, operations such as document ingestion and chat queries may take between **10 and 45 seconds**.
 > * **Timeouts**: If you encounter a database connection error or an HTTP timeout during your first document upload, please **wait a moment and try again**. The local containers may still be warming up or initializing model weights.
+>
+> <span style="color: red"><strong>Document Upload Issue:</strong> If document upload continues to fail, restart the service and try again. You can also retry from a different browser.</span>
+>
+> <span style="color: red"><strong>Chat Persistence Issue:</strong> If chat messages do not remain visible after an answer is generated, open the conversation from Chat History.</span>
