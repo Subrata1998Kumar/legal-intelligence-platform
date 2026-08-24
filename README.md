@@ -34,10 +34,12 @@ To satisfy the Secretariat's enterprise data-protection requirements, all genera
 
 1. **Local LLM (`granite4.1:3b`)**:
    * **Purpose**: Generates context-grounded chat responses, supports multilingual legal research, and evaluates compliance audits in the risk-scoring pipeline.
-   * **Hardware Optimization**: Built by IBM with 3 billion parameters, it is optimized for legal-compliance reasoning with a low memory footprint and a low temperature setting (`0.1`) to produce stable output.
+   * **Model Family**: IBM Granite Models are a family of enterprise-ready, open foundation models that support multilingual capabilities, coding, retrieval-augmented generation (RAG), tool use, and structured JSON output.
+   * **License**: Released under the Apache 2.0 license.
 2. **Local Embedding Model (`paraphrase-multilingual:278m`)**:
    * **Purpose**: Converts document chunks into dense, 768-dimensional vector embeddings.
    * **Capabilities**: Multilingual support enables high-recall semantic vector matching across English and regional-language texts.
+   * **License**: Released under the Apache 2.0 license.
 
 ---
 
