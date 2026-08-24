@@ -69,13 +69,13 @@ docker exec -it lip-db psql -U postgres -d postgres -c "SELECT id, username, rol
 ---
 
 ## **Validation Phase 1: Authentication & Account Directory**
-### **Objective**: Verify that the 6 pre-seeded accounts are loaded and that the system rejects invalid credentials.
+### **Objective**: Verify that the pre-seeded accounts are loaded and that the system rejects invalid credentials.
 
 1. **Step 1**: Open the Streamlit user portal at `http://localhost:8501`.
 2. **Step 2**: Attempt to log in with an invalid user (e.g., `officer_fake` / `password`).
    * **Expected Result**: The interface displays a connection error: *"Authentication failed. Check credentials."*
 3. **Step 3**: Log in as `officer_1` (Password: `officer_1`).
-   * **Expected Result**: Successful authentication. The app displays: *"Welcome back, officer_1! Role: Legal_Officer"*.
+   * **Expected Result**: Successful authentication. The app displays: *"Authenticated as officer_1 (Legal_Officer)"*.
 4. **Step 4**: Click **Log Out**.
    * **Expected Result**: All local memory values (chat messages, session identifiers) are cleared. The user is redirected to the login portal.
 
@@ -87,14 +87,14 @@ docker exec -it lip-db psql -U postgres -d postgres -c "SELECT id, username, rol
 ### **Test Scenario 2A: Uploading as an Administrator (Admin Role)**
 1. **Step 1**: Log in as `admin` (Password: `admin`).
 2. **Step 2**: Go to 👈 **Document Upload** in the sidebar.
-3. **Step 3**: Upload a test document containing tables or scanned text (e.g., a PDF table or scanned PNG/PDF).
+3. **Step 3**: Upload a test document containing tables or scanned text (e.g., a PDF table or scanned PDF).
 4. **Step 4**: Verify the **Assign Minimum Security Clearance** dropdown.
    * **Expected Result**: The dropdown is active and selectable. Choose `Senior_Advisor` for this document.
 5. **Step 5**: Click **Ingest Document**.
    * **Expected Result**: The screen shows:
      - Text Chunks Generated: `> 0`
      - Table Chunks Extracted: `> 0` (if a table is present)
-     - OCR Fallback Triggered: `False` (for text PDFs) or `True` (for image/scanned files).
+     - OCR Fallback Triggered: `False` (for text PDFs) or `True` (for scanned files).
 
 ### **Test Scenario 2B: Uploading as a Legal Officer (Role-Based Restriction)**
 1. **Step 1**: Log in as `officer_1` (Password: `officer_1`).
@@ -112,8 +112,8 @@ docker exec -it lip-db psql -U postgres -d postgres -c "SELECT id, username, rol
 
 ### **Setup for Search**:
 * File A is uploaded by `admin` with `Admin` clearance (e.g., "Highly Sensitive Cabinet Briefing.txt").
-* File B is uploaded by `admin` or `advisor_1` with `advisor_1` clearance (e.g., "Department Guidelines.txt").
-* File C is uploaded by `officer_1` with `Legal_Officer` clearance (e.g., "General Administrative Memo.docx").
+* File B is uploaded by `admin` or `advisor_1` with `advisor_1` clearance (e.g., "Judgement_PropertyDispute.txt").
+* File C is uploaded by `officer_1` or `admin` with `Legal_Officer` clearance (e.g., "Government_Order_LeavePolicy.txt").
 
 ### **Test Scenario 3A: Search as a Legal Officer**
 1. **Step 1**: Log in as `officer_1` / `officer_1`.
@@ -122,23 +122,31 @@ docker exec -it lip-db psql -U postgres -d postgres -c "SELECT id, username, rol
    * **Expected Result**: Chunks from File A and File B **are completely ignored and excluded from retrieval**. Only matching chunks from File C are displayed in the grounded references expander.
 
 ### **Test Scenario 3B: Search as a Senior Advisor**
-1. **Step 1**: Log in as `advisor_2` / `advisor_2`.
+1. **Step 1**: Log in as `advisor_1` / `advisor_1`.
 2. **Step 2**: Go to 👈 **Search & Retrieval** and submit the same queries.
    * **Expected Result**: The advisor retrieves relevant context from File B and File C. The highly sensitive File A remains completely hidden.
 
 ---
 
-## **Validation Phase 4: Chat History Isolation & Multi-User Partitioning**
+## **Validation Phase 4: Chat History Isolation & Multi‑User Partitioning**
 ### **Objective**: Verify that chat conversations are strictly separated between users.
 
-1. **Step 1**: Log in as `officer_1` / `officer_1`. Go to 👈 **Search & Retrieval**.
-2. **Step 2**: Start a conversation (e.g., *"What are the key terms in the general memo?"*). Receive a grounded AI response.
+1. **Step 1**: Log in as `officer_1` / `officer_1`. Go to 👈 **Search & Retrieval**.  
+   * The sidebar shows `officer_1`’s conversation history (e.g., *Revision of Leave Policy details*).  
+   * Messages reference grounded citations such as **General_Administrative_Memo.docx** and **Government_Order_LeavePolicy.txt**.
+
+2. **Step 2**: Review the chat workspace.  
+   * Example: *“The revision of the Leave Policy, as ordered by the Governor on 18‑Aug‑2026, includes the following changes effective 01‑Sep‑2026: Annual leave increased to 25 days, emergency leave capped at 7 days, sick leave requires medical certification.”*  
+   * These changes are detailed in **Government_Order_LeavePolicy.txt (Order No.: GO/LP/2026/07)**.
+
 3. **Step 3**: Click **Log Out**.
-4. **Step 4**: Log in as `officer_2` / `officer_2`. Go to 👈 **Search & Retrieval**.
-   * **Expected Result**: The workspace is blank. The sidebar does not list `officer_1`'s previous chat history.
-5. **Step 5**: Start a new chat (e.g., *"Help me understand the circular guidelines"*).
-6. **Step 6**: Click **Log Out** and log back in as `officer_1`.
-   * **Expected Result**: `officer_1`'s original chat session is successfully reloaded from the PostgreSQL database, completely isolated from `officer_2`'s data.
+
+4. **Step 4**: Log in as `officer_3` / `officer_3`. Go to 👈 **Search & Retrieval**.  
+   * **Expected Result**: The workspace is blank. The sidebar does not list `officer_1`’s previous chat history.  
+   * Only the “➕ Start New Conversation” option is available.
+
+5. **Step 5**: Start a new chat as `officer_3`.  
+   * The workspace initializes fresh, isolated from `officer_1`.
 
 ---
 
@@ -147,7 +155,7 @@ docker exec -it lip-db psql -U postgres -d postgres -c "SELECT id, username, rol
 
 ### **Test Scenario 5A: Drafting and Risk Audit**
 1. **Step 1**: Log in as `officer_1` / `officer_1`. Go to 👈 **Opinion Workspace**.
-2. **Step 2**: Enter a title and draft opinion content (e.g., *"Withholding payment due to delay"*).
+2. **Step 2**: Enter a title and draft opinion content (e.g., *"Taking Leave"*).
 3. **Step 3**: Click **Submit for Risk Audit**.
    * **Expected Result**: The local AI service (`RiskService`) analyzes the text against database precedents and generates an interactive, detailed **AI Legal Risk Report** covering compliance issues, missing citations, conflicts, and a risk score.
 4. **Step 4**: Go to **Review Opinion Pipelines**.
