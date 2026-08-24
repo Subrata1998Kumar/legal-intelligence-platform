@@ -69,7 +69,7 @@ cd legal-intelligence-platform
 #### 2. Navigate to the Deployment Folder
 Enter the container deployment directory, which contains the Docker Compose orchestration file:
 ```bash
-cd deployment
+cd deployments
 ```
 
 #### 3. Build and Run the Stack via Docker Compose
