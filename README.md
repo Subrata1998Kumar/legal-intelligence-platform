@@ -159,4 +159,3 @@ To systematically test the role restrictions, multi-format parsing, semantic fil
 >
 > <span style="color: red"><strong>Document Upload Issue:</strong> If document upload continues to fail, restart the service and try again. You can also retry from a different browser.</span>
 >
-> <span style="color: red"><strong>Chat Persistence Issue:</strong> If chat messages do not remain visible after an answer is generated, open the conversation from Chat History.</span>
